@@ -12,7 +12,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(SRV_HEADERS server/server.h server/players.h)
+set(SRV_HEADERS server/server.h
+    server/players.h
+    server/rooms.h)
 qt5_wrap_cpp(moc_sources_srv ${SRV_HEADERS})
 
 add_executable(server_exec server/main.cpp ${moc_sources_srv})

@@ -9,6 +9,7 @@
 class Player:public QObject{
     Q_OBJECT
 protected:
+friend class Admin;
     QTcpSocket* client_socket;
     QHostAddress addr;
 public:
@@ -25,7 +26,9 @@ public:
     }
 
     ~Player(){
-        client_socket->disconnectFromHost();
+        if(client_socket){
+            client_socket->disconnectFromHost();
+        }
     }
 
     auto get_addr()const{
@@ -35,12 +38,11 @@ public slots:
     void onWrite(){
         size_t mes_size;
         read_all(client_socket, &mes_size, sizeof(mes_size));
-        std::cout<<"client wrote bytes count:"<<mes_size<<"\n";
         std::string mes;
         mes.resize(mes_size);
         auto ch_ptr = const_cast<char*>(mes.data());
         read_all(client_socket, ch_ptr, mes_size);
-        std::cout<<"client wrote something:"<<mes<<"\n";
+        emit gotMessage(mes);
     }
 private slots:
     void onDisconnected(){
@@ -48,6 +50,7 @@ private slots:
     }
 signals:
     void disconnected();
+    void gotMessage(std::string mes);
 };
 
 class Admin:public Player{
@@ -55,4 +58,12 @@ public:
     Admin(QTcpSocket* cli_sock)
         :Player(cli_sock)
     {}
+
+    //constructor that moves and secures data from player
+    Admin(Player* plr)
+        :Player(plr->client_socket)
+    {
+        this->addr = plr->addr;
+        plr->client_socket = nullptr;
+    }
 };

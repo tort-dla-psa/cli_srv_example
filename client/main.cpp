@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
     sock->waitForConnected();
     while(true){
         std::string mes;
-        std::cin>>mes;
+        std::getline(std::cin, mes);
         if(mes == "\\quit"){
             break;
         }
